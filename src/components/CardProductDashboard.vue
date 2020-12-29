@@ -210,6 +210,7 @@ export default {
   async mounted() {
     await this.fetchFavourite()
     await this.getRating();
+    this.isNew = ((new Date() - new Date(this.product.dateAdded)) < 86400000*3 ) ? true : false;
   },
   props: {
     product: {

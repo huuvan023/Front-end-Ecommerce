@@ -6,7 +6,12 @@
       </div>
       <div class="text-h4 q-my-md text-weight-bold">MY ORDERS</div>
     </div>
-    <div v-if="!hasData" class="col-md-11 col-xs-12 q-mx-auto q-pa-md q-mb-md text-center"
+    <div v-if="data.length > 0"
+         style="font-family: Actor;border: 1px solid lightgrey"
+         class="col-md-11 col-xs-12 q-mx-auto q-pa-md q-mb-md text-center">
+          <ListCheckout v-for="(item, key) in data" :key="key" :checkout="item"/>
+    </div>
+    <div v-if="data.length <= 0" class="col-md-11 col-xs-12 q-mx-auto q-pa-md q-mb-md text-center"
          style="font-family: Actor;border: 1px solid lightgrey" >
       <div>
         <q-icon name="local_shipping" size="lg"/>
@@ -28,11 +33,14 @@
 
 <script>
 import 'quasar/dist/quasar.addon.css'
+import {httpClient} from "src/config/httpClient";
+import ListCheckout from "components/ListCheckout";
 
 export default {
   name: "MyOrders",
+  components: {ListCheckout},
   data:() => ({
-    hasData: false
+    data:[]
   }),
   methods: {
     go(url) {
@@ -40,6 +48,16 @@ export default {
         this.$router.replace(url)
       }
     },
+  },
+  async mounted() {
+    let dt = []
+    await httpClient.get('/api/user/get-user-checkout')
+    .then(data => {
+      if (data.code === 1) {
+        dt = data.data;
+      }
+    })
+    this.data = dt;
   }
 }
 </script>

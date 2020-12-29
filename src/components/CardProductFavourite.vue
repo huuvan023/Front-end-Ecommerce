@@ -94,7 +94,7 @@ export default {
       delConfirm: false,
       addCartConfirm: false,
       ratingModel: 4,
-      isNew: true
+      isNew: false
     }
   },
   methods: {
@@ -149,7 +149,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.product)
+    this.isNew = ((new Date() - new Date(this.product.dateAdded)) < 86400000*3 ) ? true : false;
   },
   props: {
     product: {
