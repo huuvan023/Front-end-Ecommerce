@@ -1,24 +1,26 @@
 <template>
   <div class="full-width shadow-2 q-my-md row q-pa-sm">
     <div class="col-8">
-      <div v-for="(item) in arrProduct" class="text-left text-subtitle1">
-        <div class="flex">
-          <div>
-            <q-img :src="item.photoReview" style="width: 50px;"/>
-          </div>
-          <div>
-            <div>
-              {{ item.productName }}
-            </div>
-
-          </div>
-        </div>
-      </div>
+      <ProductInCheckOut v-for="(item,key) in data" :product="item" :key="key"/>
     </div>
-
-    <div class="col-4 flex items-center">
-        <div class="text-weight-bolder">
-          Status: {{status}}
+    <div class="col-4 flex text-left q-pl-md row">
+        <div class=" col-12">
+          <span class="text-weight-bold">
+            Status:
+          </span> {{statuss}}
+        </div>
+        <div class="col-12">
+          <span class="text-weight-bold">
+            Date added:
+          </span> {{date}}
+        </div>
+        <div class="col-12">
+          <span class="text-weight-bold">
+            Total price:
+          </span>
+          <span class=" text-subtitle1">
+          {{totalPrice}} $
+          </span>
         </div>
     </div>
   </div>
@@ -26,54 +28,73 @@
 
 <script>
 import {httpClient} from "src/config/httpClient";
+import ProductInCheckOut from "components/ProductInCheckOut";
 
 export default {
   name: "ListCheckout",
+  components: {ProductInCheckOut},
   props: {
     checkout: {
       require: true,
       type: Object
+    },
+    date: {
+      require: true,
+      type: String
+    },
+    totalPrice: {
+      require: true,
+      type: String
+    },
+    status: {
+      require: true,
+      type: String
     }
   },
   data:() => ({
-    status: "",
+    statuss: "",
     data: {},
     arrProduct: [],
   }),
   async mounted() {
-    let id = this.checkout.idOder;
+    let id = this.checkout.idOrderList;
+     
     let dt = {}
     await  httpClient.post('/api/checkout/details', {
-      idOder: id
+      idOrderList: id
     })
     .then(data => {
       dt = data.data
     })
     this.data = dt
-    console.log(this.data)
-    let ppp = []
-    for (let i =0 ; i< this.data.products.length; i++) {
-      let ii = this.data.products[i].idProduct
-      await httpClient.post('/api/product/find-by-id', {
-        idProduct: ii
-      })
-      .then(data => {
-        ppp.push(data.data)
-      })
+    
+
+
+
+    // let ppp = []
+    // for (let i =0 ; i< this.data.products.length; i++) {
+    //   let ii = this.data.products[i].idProduct
+    //   await httpClient.post('/api/product/find-by-id', {
+    //     idProduct: ii
+    //   })
+    //   .then(data => {
+    //     ppp.push(data.data)
+    //   })
+    // }
+    // this.arrProduct = ppp;
+    // console.log(this.data)
+     
+    if(this.status == 0) {
+      this.statuss = "Initial"
     }
-    this.arrProduct = ppp;
-    console.log(this.data)
-    if(this.data.status === 0) {
-      this.status = "Initial"
+    if(this.status == 1) {
+      this.statuss = "Receive"
     }
-    if(this.data.status === 1) {
-      this.status = "Receive"
+    if(this.status == 2) {
+      this.statuss = "Delivery"
     }
-    if(this.data.status === 2) {
-      this.status = "Delivery"
-    }
-    if(this.data.status === 3) {
-      this.status = "Complete"
+    if(this.status == 3) {
+      this.statuss = "Complete"
     }
   }
 }

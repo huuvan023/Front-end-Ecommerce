@@ -61,7 +61,7 @@
               <div class="col-12 row">
                 <q-input class="col-8" outlined v-model="voucher" color="dark" placeholder="XXX XXX"/>
                 <div class="col-3 flex items-center">
-                  <q-btn label="Apply" @click="validateVoucher" class="q-mx-sm" color="dark"/>
+                  <q-btn label="Check" @click="CheckVoucher" class="q-mx-sm" color="dark"/>
                 </div>
               </div>
             </div>
@@ -82,8 +82,21 @@
               </q-card-actions>
             </q-card>
           </q-dialog>
+          <q-dialog v-model="confirmCheckoutCost" persistent>
+                  <q-card>
+                    <q-card-section class="row items-center">
+                      <q-avatar icon="cart" color="primary" text-color="white" />
+                      <span class="q-ml-sm">Your total price is {{price}}$</span>
+                    </q-card-section>
+
+                    <q-card-actions align="right">
+                      <q-btn flat label="Cancel" color="primary" v-close-popup />
+                      <q-btn flat label="Ok cool!" @click="Finish" color="primary" v-close-popup />
+                    </q-card-actions>
+                  </q-card>
+                </q-dialog>
           <q-dialog v-model="openModalPayment" full-width position="top">
-            <Pay @Finish="Finish" :delivery="delivery" @closeModal="openModalPayment = false" :dialog="openModalPayment" />
+            <Pay @Finish="beforeCheckout" :delivery="delivery" @closeModal="openModalPayment = false" :dialog="openModalPayment" />
           </q-dialog>
           <div class="col-12 q-mt-sm text-blue-grey-8">
             Got a discount code? Add to the box above.
@@ -107,6 +120,7 @@ export default {
     return {
       toLogin: false,
       voucher: '',
+      confirmCheckoutCost:false,
       deliveryOpt: [
         {
           label: 'Normal Delivery ($15.00)',
@@ -140,6 +154,64 @@ export default {
     ...mapActions({
       handleFetchUser: 'user/fetchUser'
     }),
+    async CheckVoucher() {
+      if (this.voucher.trim() !== "") {
+        let voucherCheck = false;
+        await this.validateVoucher().then(data => {
+          voucherCheck = data
+        })
+        if(voucherCheck.check) {
+           this.$q.notify({
+              color: 'positive',
+              message: 'Valid voucher!',
+              position: 'top',
+              timeout: 1000
+            })
+            return
+        }
+        else {
+          this.$q.notify({
+              color: 'negative',
+              message: 'Invalid voucher!',
+              position: 'top',
+              timeout: 1000
+            })
+            return
+        } 
+      }
+      this.$q.notify({
+        color: 'negative',
+        message: 'Invalid voucher!',
+        position: 'top',
+        timeout: 1000
+      })
+      return
+    },
+    async beforeCheckout() {
+      this.confirmCheckoutCost = !this.confirmCheckoutCost
+        if (this.voucher.trim() !== "") {
+        let voucherCheck = false;
+        await this.validateVoucher().then(data => {
+          console.log(data)
+          voucherCheck = data
+        })
+        if(voucherCheck.check) {
+          this.price =  this.price - voucherCheck.price;
+          if (this.price < 0) {
+            this.price = 0
+          }
+        }
+        else {
+          this.$q.notify({
+              color: 'negative',
+              message: 'Invalid voucher!',
+              position: 'top',
+              timeout: 1000
+            })
+            return
+        } 
+      }
+    },
     async caculatePrice() {
       this.price = 0;
       var deliPrice = 0;
@@ -171,11 +243,35 @@ export default {
         })
       }
 
-      const addCheckout = {
+     
+      if (this.voucher.trim() !== "") {
+        let voucherCheck = false;
+        await this.validateVoucher().then(data => {
+          console.log(data)
+          voucherCheck = data
+        })
+        if(voucherCheck.check) {
+          this.price =  this.price - voucherCheck.price;
+          if (this.price < 0) {
+            this.price = 0
+          }
+        }
+        else {
+          this.$q.notify({
+              color: 'negative',
+              message: 'Invalid voucher!',
+              position: 'top',
+              timeout: 1000
+            })
+            return
+        } 
+      }
+       const addCheckout = {
         totalPrice: `${this.price}`,
+        idVoucher: this.voucher ?  this.voucher : '',
         products: proList
       }
-
+       
       await httpClient.post('api/checkout/add',addCheckout)
       .then(async data => {
         if(data.code === 1) {
@@ -211,45 +307,29 @@ export default {
       this.$q.loading.hide()
     },
     async validateVoucher() {
+      let voucherData = null;
       await httpClient.post("/api/voucher/get-voucher", {
         idVoucher: this.voucher
       })
       .then(data => {
         console.log(data)
         if (data.code === 1) {
-          if (data.data.isUse !== 1) {
-            this.$q.notify({
-              color: 'positive',
-              message: 'Voucher valid!',
-              position: 'top',
-              timeout: 1000
-            })
-            this.price = this.price - data.data.price
-            this.$q.loading.hide()
-            return true
-          }
-          else {
-            this.$q.notify({
-              color: 'negative',
-              message: 'Voucher invalid!',
-              position: 'top',
-              timeout: 1000
-            })
-            this.$q.loading.hide()
-            return false
-          }
+          voucherData = data.data
+          //this.price = this.price - data.data.price
+          this.$q.loading.hide()
         }
         else {
-          this.$q.notify({
-            color: 'negative',
-            message: 'Voucher invalid!',
-            position: 'top',
-            timeout: 1000
-          })
           this.$q.loading.hide()
-          return false
+          return {check:false, price:0}
         }
       })
+      if(voucherData) { 
+          if((new Date(voucherData.expiredDate) > new Date()) && voucherData.isUse === 0) {
+            return {check:true, price:voucherData.price}
+          }
+          return {check:false, price:0}
+      }
+      return {check:false, price:0}
     },
     async openCheckoutModel() {
       await this.$q.loading.show()

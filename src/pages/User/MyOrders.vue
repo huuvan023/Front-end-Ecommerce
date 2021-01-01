@@ -9,7 +9,7 @@
     <div v-if="data.length > 0"
          style="font-family: Actor;border: 1px solid lightgrey"
          class="col-md-11 col-xs-12 q-mx-auto q-pa-md q-mb-md text-center">
-          <ListCheckout v-for="(item, key) in data" :key="key" :checkout="item"/>
+          <ListCheckout :date="item.date" :totalPrice="item.totalPrice" :status="item.status" v-for="(item, key) in data" :key="key" :checkout="item"/>
     </div>
     <div v-if="data.length <= 0" class="col-md-11 col-xs-12 q-mx-auto q-pa-md q-mb-md text-center"
          style="font-family: Actor;border: 1px solid lightgrey" >
