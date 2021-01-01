@@ -52,7 +52,7 @@
 
                     <q-card-actions align="right">
                       <q-btn flat label="Cancel" color="primary" v-close-popup />
-                      <q-btn flat label="Yes! Sure" @click="logOut" color="primary" v-close-popup />
+                      <q-btn flat label="Yes! Sure!" @click="onnlogOut" color="primary" v-close-popup />
                     </q-card-actions>
                   </q-card>
                 </q-dialog>
@@ -93,16 +93,17 @@ export default {
         text: 'Account overview',
         active: false
       },
-      {
-        userTabCheck: '/user/my-orders',
-        icon: 'local_shipping',
-        text: 'My orders',
-        active: false
-      },
+    
       {
         userTabCheck: '/user/my-details',
         icon: 'contacts',
         text: 'My details',
+        active: false
+      },
+      {
+        userTabCheck: '/user/my-orders',
+        icon: 'local_shipping',
+        text: 'My orders',
         active: false
       },
       {
@@ -115,6 +116,12 @@ export default {
         userTabCheck: '/user/gift-and-vouchers',
         icon: 'redeem',
         text: 'Gift and Vouchers',
+        active: false
+      },
+      {
+        userTabCheck: '/user/change-password',
+        icon: 'vpn_key',
+        text: 'Change password',
         active: false
       }
     ]
@@ -131,6 +138,12 @@ export default {
     )
   },
   created() {
+      /*{
+        userTabCheck: '/user/my-orders',
+        icon: 'local_shipping',
+        text: 'My orders',
+        active: false
+      },*/
     this.userTabCurrent = this.$route.path
     this.userTabList = this.userTabList.map(item => {
       if (this.userTabCurrent === item.userTabCheck) {
@@ -170,8 +183,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions({
-      handleLogout: 'user/logOut',
+    ...mapActions({ 
       handleFetchUser: 'user/fetchUser',
       handleUpdateUser: 'user/updateUser'
     }),
@@ -223,7 +235,7 @@ export default {
         this.$router.replace(url)
       }
     },
-    async logOut() {
+    async onnlogOut() {
       localStorage.removeItem('tokenString');
       this.$q.notify({
         message: 'Logout success!',

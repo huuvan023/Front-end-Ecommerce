@@ -384,13 +384,14 @@ export default {
       this.$q.loading.show()
       await this.fetchFavourite();
       await this.handleGetproductByType('M');
+      console.log(this.men)
       await this.handleGetproductByType('W');
 
       console.log(this.totalRate)
       let id = this.$router.currentRoute.params.idProduct
       await this.handleFetchProduct({id});
       this.data = this.product;
-
+      console.log("this.data",this.data,id)
       await httpClient.post('/api/product-photo/find-by-id',{
         idProduct: id
       })

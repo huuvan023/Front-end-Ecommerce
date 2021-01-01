@@ -322,14 +322,15 @@ export default {
   async mounted() {
     this.$q.loading.show()
     await this.handleFetchUser()
-    await this.getBestSeller();
+    //await this.getBestSeller();
     await this.getAllProduct();
     await this.getOffer();
-    this.bestSeller = this.bestSeller.sort((a, b) => {
-      return b.popular - a.popular
-    });
+    // this.bestSeller = this.bestSeller.sort((a, b) => {
+    //   return b.popular - a.popular
+    // });
 
     for( let i = 0 ; i < this.allProduct.length; i++ ) {
+      console.log(this.allProduct[i])
       if(this.allProduct[i].isSaling > 0 && (new Date() < new Date(this.allProduct[i].expiredSalingDate))) {
         this.flashSale = this.allProduct[i];
         break;

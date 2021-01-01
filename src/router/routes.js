@@ -65,6 +65,10 @@ const routes = [
           {
             path: '/user/gift-and-vouchers',
             component: () => import('../pages/User/GiftNVouchers')
+          },
+          {
+            path: '/user/change-password',
+            component: () => import('../pages/User/ChangePassword')
           }
         ]
       }

@@ -61,6 +61,7 @@
                 <q-btn @click="onLogin" outline color="primary" class="q-my-sm q-px-xl q-py-xs text-body1" label="Login" />
               </div>
             </div>
+            <!--
             <q-separator class="q-my-sm"/>
             <div class="col-12">
               <div class="text-h6 col-12 text-center" style="font-weight: bold; ">OR LOGIN WITH...</div>
@@ -74,7 +75,7 @@
                    Facebook
                 </div>
               </div>
-            </div>
+            </div>-->
           </q-tab-panel>
 
           <q-tab-panel class="col-12 row" style="min-height: 50vh" name="signup">

@@ -99,20 +99,67 @@ export  async function fetchUser({commit}, data) {
 }
 
 export async function updateUser({commit},data) {
-  console.log(data)
+ try {
   await httpClient.post("/api/user/update", data)
-    .then(data => {
-      if (data.code === 1) {
-        commit('notify/setNotify', {
-          color: 'positive',
-          message: 'Update success!'
-        }, { root: true })
-      }
-      else {
-        commit('notify/setNotify', {
-          color: 'negative',
-          message: data.message,
-        }, { root: true })
-      }
-    })
+  .then(data => {
+    if (data.code === 1) {
+      commit('notify/setNotify', {
+        color: 'positive',
+        message: 'Update success!'
+      }, { root: true })
+    }
+    else {
+      commit('notify/setNotify', {
+        color: 'negative',
+        message: data.message,
+      }, { root: true })
+    }
+  })
+  .catch(e => {
+    commit('notify/setNotify', {
+      color: 'negative',
+      message: "Something went wrong",
+    }, { root: true })
+  })
+ }
+ catch(e) {
+  commit('notify/setNotify', {
+    color: 'negative',
+    message: "Something went wrong",
+  }, { root: true })
+ }
 }
+
+
+export async function changePassword({commit},data) {
+  try {
+   await httpClient.post("/api/user/change-password", data)
+   .then(data => {
+     if (data.code === 1) {
+       commit('notify/setNotify', {
+         color: 'positive',
+         message: 'Update success!'
+       }, { root: true })
+     }
+     else {
+       commit('notify/setNotify', {
+         color: 'negative',
+         message: data.message,
+       }, { root: true })
+     }
+   })
+   .catch(e => {
+     commit('notify/setNotify', {
+       color: 'negative',
+       message: "Something went wrong",
+     }, { root: true })
+   })
+  }
+  catch(e) {
+   commit('notify/setNotify', {
+     color: 'negative',
+     message: "Something went wrong",
+   }, { root: true })
+  }
+ }
+ 
